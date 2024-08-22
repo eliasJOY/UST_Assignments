@@ -75,13 +75,13 @@ between unbounded preceding and current row) as Running_Sum
 from EmployeeData;
 
 --c) Which gender have higher strength as workforce in each department
-select Department,Gender,EmpCount as Emp_count
+select Department,Gender as Gender_Domination,EmpCount as Emp_count
 from 
 (select Department,Gender,count(*) as EmpCount,
- rank() over (partition by Department order by count(*) desc) as rnk
+ rank() over (partition by Department order by count(*) desc) as rn
 from EmployeeData
 group by Department, Gender) as ranked
-where rnk = 1;
+where rn = 1;
 
 --d) Create a new column AGE_BAND and Show Distribution of Employee's Age band group
 --(Below 25, 25-34, 35-44, 45-55. ABOVE 55).
@@ -92,8 +92,9 @@ add AGE_BAND int;
 update EmployeeData
 set AGE_BAND =(select COUNT(*)
 from EmployeeData
-where EmployeeData.CF_age_band = EmployeeData.CF_age_band)
-select CF_age_band,COUNT(*) as AGE_BAND
+where EmployeeData.CF_age_band = EmployeeData.CF_age_band);
+
+select CF_age_band,COUNT(*) as AGE_BAND_COUNT
 from EmployeeData
 group by CF_age_band;
 
@@ -106,7 +107,7 @@ order by MaritalStatus desc;
 
 --f) Show the Job Role with Highest Attrition Rate (Percentage)	
 
-select top(1) JobRole, 
+select top(5) JobRole, 
 yes_count * 100/yes_count as Attrition_percent
 FROM (
 	select JobRole,
@@ -124,14 +125,14 @@ order by Attrition_percent desc;
 select YearsSinceLastPromotion, COUNT(*) as Promoted_Emp
 from EmployeeData
 group by YearsSinceLastPromotion
-order by YearsSinceLastPromotion;
+order by Promoted_Emp desc;
 
 select JobRole,PerformanceRating,
-avg(YearsInCurrentRole) as avgRoleYears,avg(YearsAtCompany) as avgWorkYears,
-avg(TrainingTimesLastYear) as avgTrainingTime,avg(YearsSinceLastPromotion) as avgPromotionYears
+avg(YearsInCurrentRole) as avgCurrentRoleYears,avg(YearsAtCompany) as avgWorkYears,
+avg(TrainingTimesLastYear) as avgTrainingTime,avg(YearsSinceLastPromotion) as avgGapBetweenPromotions
 from EmployeeData
 group by JobRole,PerformanceRating
-order by avgPromotionYears desc;
+order by avgGapBetweenPromotions asc;
 
 --h already done
 
@@ -152,6 +153,23 @@ where TotalWorkingYears > 0;
 
 --k) Foreach employee who left, calculate the number of years they worked before leaving and 
 --compare it with the average years worked by employees in the same department.
+
+WITH YearsWorked AS (
+    SELECT
+        emp_no,Department as Department_worked,YearsAtCompany AS YearsWorkedBeforeLeaving
+    FROM EmployeeData
+    WHERE Attrition = 'Yes'
+	
+),
+AverageYearsByDepartment AS (
+    SELECT Department,
+        AVG(YearsAtCompany) AS AvgYearsWorked
+    FROM EmployeeData
+    GROUP BY Department
+)
+select*
+from YearsWorked LEFT JOIN AverageYearsByDepartment
+on AverageYearsByDepartment.Department = YearsWorked.Department_worked;
 
 
 --l) Rank the departments by the average monthly income of employees who have left.
@@ -228,7 +246,8 @@ PERCENT_RANK() over (order by TrainingTimesLastYear ) as percent_
 from EmployeeData
 order by percent_ desc;
 
---s) Divide employees into 5 groups based on training times last year [Use NTILE ()]select emp_no,TrainingTimesLastYear,
+--s) Divide employees into 5 groups based on training times last year [Use NTILE ()]
+select emp_no,TrainingTimesLastYear,
 ntile(5) over (order by TrainingTimesLastYear)
 as training_grp
 from EmployeeData;
@@ -244,7 +263,8 @@ from EmployeeData
 order by TrainingTimesLastYear desc;
 
 --u) Categorize employees as 'High', 'Medium', or 'Low' performers based on their performance 
---rating, using a CASE WHEN statement.
+--rating, using a CASE WHEN statement.
+
 select emp_no,PerformanceRating,
 case
 	when PerformanceRating > 3 then 'High Performance'
@@ -255,7 +275,8 @@ from EmployeeData
 order by PerformanceRating desc;
 
 --v) Use a CASE WHEN statement to categorize employees into 'Poor', 'Fair', 'Good', or 'Excellent' 
---work-life balance based on their work-life balance score.
+--work-life balance based on their work-life balance score.
+
 select emp_no,WorkLifeBalance,
 case
 	when WorkLifeBalance > 3 then 'Excellent'
@@ -266,7 +287,9 @@ end as 'work-life balance'
 from EmployeeData
 order by WorkLifeBalance desc;
 
---w) Group employees into 3 groups based on their stock option level using the [NTILE] function.select emp_no,StockOptionLevel,
+--w) Group employees into 3 groups based on their stock option level using the [NTILE] function.
+
+select emp_no,StockOptionLevel,
 ntile(3) over (order by StockOptionLevel)
 as Stock_Level
 from EmployeeData
@@ -282,8 +305,7 @@ AVG(PercentSalaryHike) as avgSalaryHike,
 AVG(MonthlyIncome) as avgIncome,
 AVG(EnvironmentSatisfaction) as avgEnviornmentSatisfaction,
 AVG(RelationshipSatisfaction) as avgRelationshipSatisfaction,
-COUNT(case when Attrition = 'Yes' then 1 end) Attrition_count,
-COUNT(case when Attrition = 'Yes' then 1 end)*100/ COUNT(*) Attrition_percent
+COUNT(case when Attrition = 'Yes' then 1 end) Attrition_count
 from EmployeeData
 group by JobRole,Department
-order by Attrition_percent desc;
+order by Attrition_count desc;
