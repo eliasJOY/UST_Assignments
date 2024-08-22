@@ -149,9 +149,25 @@ WHERE TotalWorkingYears > 0;
 ```
 ![alt text](image-9.png)
 ## k) For Each Employee Who Left, Calculate the Number of Years They Worked Before Leaving and Compare It with the Average Years Worked by Employees in the Same Department
-
-*(Query to be provided)*
-
+```sql
+WITH YearsWorked AS (
+    SELECT
+        emp_no,Department as Department_worked,YearsAtCompany AS YearsWorkedBeforeLeaving
+    FROM EmployeeData
+    WHERE Attrition = 'Yes'
+	
+),
+AverageYearsByDepartment AS (
+    SELECT Department,
+        AVG(YearsAtCompany) AS AvgYearsWorked
+    FROM EmployeeData
+    GROUP BY Department
+)
+select*
+from YearsWorked LEFT JOIN AverageYearsByDepartment
+on AverageYearsByDepartment.Department = YearsWorked.Department_worked;
+```
+![alt text](image-23.png)
 ## l) Rank the Departments by the Average Monthly Income of Employees Who Have Left
 
 ```sql
@@ -224,7 +240,7 @@ FROM (
 WHERE MonthlyIncome < Q1 - ((Q3 - Q1) * 1.5)
    OR MonthlyIncome > Q3 + (1.5 * (Q3 - Q1));
 ```
-
+![alt text](image-14.png)
 ## q) Gender Distribution Within Each Job Role, Show Each Job Role with Its Gender Domination
 
 ```sql
@@ -248,7 +264,7 @@ FROM (
 ) AS ranked
 WHERE rn = 1;
 ```
-
+![alt text](image-15.png)
 ## r) Percent Rank of Employees Based on Training Times Last Year
 
 ```sql
@@ -258,7 +274,7 @@ SELECT emp_no,
 FROM EmployeeData
 ORDER BY percent_ DESC;
 ```
-
+![alt text](image-16.png)
 ## s) Divide Employees into 5 Groups Based on Training Times Last Year
 
 ```sql
@@ -267,7 +283,7 @@ SELECT emp_no,
        NTILE(5) OVER (ORDER BY TrainingTimesLastYear) AS training_grp
 FROM EmployeeData;
 ```
-
+![alt text](image-17.png)
 ## t) Categorize Employees Based on Training Times Last Year as - Frequent Trainee, Moderate Trainee, Infrequent Trainee
 
 ```sql
@@ -281,7 +297,7 @@ SELECT emp_no,
 FROM EmployeeData
 ORDER BY TrainingTimesLastYear DESC;
 ```
-
+![alt text](image-18.png)
 ## u) Categorize Employees as 'High', 'Medium', or 'Low' Performers Based on Their Performance Rating
 
 ```sql
@@ -295,7 +311,7 @@ SELECT emp_no,
 FROM EmployeeData
 ORDER BY PerformanceRating DESC;
 ```
-
+![alt text](image-19.png)
 ## v) Use a CASE WHEN Statement to Categorize Employees into 'Poor', 'Fair', 'Good', or 'Excellent' Work-Life Balance
 
 ```sql
@@ -310,7 +326,7 @@ SELECT emp_no,
 FROM EmployeeData
 ORDER BY WorkLifeBalance DESC;
 ```
-
+![alt text](image-20.png)
 ## w) Group Employees into 3 Groups Based on Their Stock Option Level Using the NTILE Function
 
 ```sql
@@ -320,7 +336,7 @@ SELECT emp_no,
 FROM EmployeeData
 ORDER BY Stock_Level;
 ```
-
+![alt text](image-21.png)
 ## x) Find Key Reasons for Attrition in the Company
 
 ```sql
@@ -341,5 +357,6 @@ FROM EmployeeData
 GROUP BY JobRole, Department
 ORDER BY Attrition_count DESC;
 ```
+![alt text](image-22.png)
 ```
 
