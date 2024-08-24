@@ -349,23 +349,24 @@ ORDER BY Stock_Level;
 ## x) Find Key Reasons for Attrition in the Company
 
 ```sql
-SELECT Job
+select COUNT(Attrition) as Total_Attrition_Count
+from EmployeeData
+where Attrition = 'Yes' ;
 
-Role,
-       Department,
-       AVG(YearsAtCompany) AS avgWorkingYears,
-       AVG(YearsSinceLastPromotion) AS avgPromotionGap,
-       AVG(WorkLifeBalance) AS avgWorkLifeRating,
-       AVG(PercentSalaryHike) AS avgSalaryHike,
-       AVG(MonthlyIncome) AS avgIncome,
-       AVG(EnvironmentSatisfaction) AS avgEnvironmentSatisfaction,
-       AVG(RelationshipSatisfaction) AS avgRelationshipSatisfaction,
-       COUNT(CASE WHEN Attrition = 'Yes' THEN 1 END) AS Attrition_count
-       
-FROM EmployeeData
-GROUP BY JobRole, Department
-ORDER BY Attrition_count DESC;
+select JobRole,Department,
+AVG(YearsAtCompany) as avgWorkingYears,
+AVG(YearsSinceLastPromotion) as avgPromotionGap,
+AVG(WorkLifeBalance) as avgWorkLifeRating,
+AVG(PercentSalaryHike) as avgSalaryHike,
+AVG(MonthlyIncome) as avgIncome,
+AVG(EnvironmentSatisfaction) as avgEnviornmentSatisfaction,
+AVG(RelationshipSatisfaction) as avgRelationshipSatisfaction,
+COUNT(case when Attrition = 'Yes' then 1 end) Attrition_count
+from EmployeeData
+group by JobRole,Department
+order by Attrition_count desc;
 ```
+![alt text](image-27.png)
 ![alt text](image-22.png)
 ### Insight: Departments with lowest of avg salary, avg enviornment satisfaction and avg relationship satisfaction had the highest attrition count.
 ```

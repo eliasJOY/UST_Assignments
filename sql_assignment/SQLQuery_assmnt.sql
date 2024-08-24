@@ -100,25 +100,26 @@ group by CF_age_band;
 
 --e) Compare all marital status of employee and find the most frequent marital status
 
-select top(1) MaritalStatus,COUNT(*) as count_
+select top(1) MaritalStatus,COUNT(*) as count_num
 from EmployeeData
 group by MaritalStatus
-order by MaritalStatus desc;
+order by count_num desc;
+
+--Insight: Most of the employees working are married
 
 --f) Show the Job Role with Highest Attrition Rate (Percentage)	
 
-select top(5) JobRole, 
-yes_count * 100/yes_count as Attrition_percent
+
+SELECT TOP(1) JobRole,
+       (total_yes * 100.0 / total_count) AS Attrition_percent
 FROM (
-	select JobRole,
-	COUNT(case
-		when Attrition = 'Yes' then 1
-	end) as total_yes,
-	COUNT(*) yes_count
-	from EmployeeData
-	group by JobRole
+    SELECT JobRole,
+           COUNT(CASE WHEN Attrition = 'Yes' THEN 1 END) AS total_yes,
+           COUNT(*) AS total_count
+    FROM EmployeeData
+    GROUP BY JobRole
 ) jobs
-order by Attrition_percent desc;
+ORDER BY Attrition_percent DESC;
 
 --g) Show distribution of Employee's Promotion,
 --Find the maximum chances of employee getting promoted.
@@ -297,6 +298,9 @@ order by Stock_Level ;
 
 --x) Find key reasons for Attrition in Company
 
+select COUNT(Attrition) as Total_Attrition_Count
+from EmployeeData
+where Attrition = 'Yes' ;
 select JobRole,Department,
 AVG(YearsAtCompany) as avgWorkingYears,
 AVG(YearsSinceLastPromotion) as avgPromotionGap,
@@ -309,3 +313,7 @@ COUNT(case when Attrition = 'Yes' then 1 end) Attrition_count
 from EmployeeData
 group by JobRole,Department
 order by Attrition_count desc;
+
+select RelationshipSatisfaction,Department
+from EmployeeData 
+order by RelationshipSatisfaction;
