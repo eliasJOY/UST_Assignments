@@ -71,28 +71,30 @@ GROUP BY CF_age_band;
 ## e) Compare All Marital Status of Employees and Find the Most Frequent Marital Status
 
 ```sql
-SELECT TOP(1) MaritalStatus,
-               COUNT(*) AS count_
-FROM EmployeeData
-GROUP BY MaritalStatus
-ORDER BY count_ DESC;
+
+select top(1) MaritalStatus,COUNT(*) as count_num
+from EmployeeData
+group by MaritalStatus
+order by count_num desc;
+
+--Insight: Most of the employees working are married.
 ```
-![alt text](image-4.png)
+![alt text](image-26.png)
 ## f) Show the Job Role with Highest Attrition Rate (Percentage)
 
 ```sql
-SELECT TOP(5) JobRole, 
-               yes_count * 100 / yes_count AS Attrition_percent
+SELECT TOP(1) JobRole,
+       (total_yes * 100.0 / total_count) AS Attrition_percent
 FROM (
     SELECT JobRole,
            COUNT(CASE WHEN Attrition = 'Yes' THEN 1 END) AS total_yes,
-           COUNT(*) AS yes_count
+           COUNT(*) AS total_count
     FROM EmployeeData
     GROUP BY JobRole
 ) jobs
 ORDER BY Attrition_percent DESC;
 ```
-![alt text](image-5.png)
+![alt text](image-25.png)
 ## g) Show Distribution of Employee's Promotion and Find the Maximum Chances of Employee Getting Promoted
 
 ```sql
@@ -103,6 +105,8 @@ GROUP BY YearsSinceLastPromotion
 ORDER BY Promoted_Emp DESC;
 ```
 ![alt text](image-6.png)
+### Insight: This Shows that most promoted employees where last promoted less than 1 year ago.
+
 ```sql
 -- Average metrics based on job role and performance rating
 SELECT JobRole,
@@ -116,6 +120,7 @@ GROUP BY JobRole, PerformanceRating
 ORDER BY avgGapBetweenPromotions ASC;
 ```
 ![alt text](image-7.png)
+### Insight: The table shows that employees with most perfomance rating ang most work experience has the higher chance of promotion.
 ## i) Find the Rank of Employees Within Each Department Based on Their Monthly Income
 
 ```sql
@@ -133,6 +138,7 @@ FROM (
 WHERE rank_ <= 5;
 ```
 ![alt text](image-8.png)
+
 ## j) Calculate the Running Total of 'Total Working Years' for Each Employee Within Each Department and Age Band
 
 ```sql
@@ -197,6 +203,8 @@ GROUP BY MaritalStatus, Attrition
 ORDER BY emp_count DESC;
 ```
 ![alt text](image-11.png)
+
+Insight: Attrition rate is highest for Single  employees and majority of working people are married.
 ## n) Show the Department with Highest Attrition Rate (Percentage)
 
 ```sql
@@ -265,6 +273,7 @@ FROM (
 WHERE rn = 1;
 ```
 ![alt text](image-15.png)
+
 ## r) Percent Rank of Employees Based on Training Times Last Year
 
 ```sql
@@ -358,5 +367,6 @@ GROUP BY JobRole, Department
 ORDER BY Attrition_count DESC;
 ```
 ![alt text](image-22.png)
+### Insight: Departments with lowest of avg salary, avg enviornment satisfaction and avg relationship satisfaction had the highest attrition count.
 ```
 
